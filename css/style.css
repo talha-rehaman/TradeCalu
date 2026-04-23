@@ -1,0 +1,635 @@
+:root {
+    --bg-dark: #121212;
+    --card-bg: #1A1A1A;
+    --input-bg: #111111;
+    /* Darker background to contrast with card */
+    --border-color: #333333;
+    --text-main: #FFFFFF;
+    --text-muted: #A0A0A0;
+    --accent-yellow: #FFC107;
+    --accent-yellow-hover: #FFCA28;
+    --danger-red: #D32F2F;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 480px;
+    transition: filter 0.3s ease;
+}
+
+.app-container.blurred {
+    filter: blur(8px);
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Payment Overlay */
+.payment-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 500;
+    padding: 20px;
+    text-align: center;
+}
+
+.overlay-content {
+    background-color: var(--card-bg);
+    padding: 40px 30px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.overlay-logo {
+    width: 80px;
+    height: auto;
+    margin-bottom: 24px;
+}
+
+.overlay-content h2 {
+    font-size: 24px;
+    margin-bottom: 12px;
+    color: var(--text-main);
+}
+
+.overlay-content p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    line-height: 1.6;
+}
+
+.pay-btn {
+    background-color: var(--accent-yellow);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 16px 32px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform 0.2s, background-color 0.2s;
+    margin-bottom: 20px;
+}
+
+.pay-btn:hover {
+    background-color: var(--accent-yellow-hover);
+    transform: translateY(-2px);
+}
+
+.pay-btn i {
+    font-size: 24px;
+}
+
+.stripe-badge {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.restore-group {
+    margin-top: 10px;
+}
+
+#restore-link {
+    color: var(--text-muted);
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#restore-link:hover {
+    color: var(--accent-yellow);
+}
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+    padding: 0px 16px;
+    /* Tighter gap to the first card */
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.title-icon {
+    font-size: 34px;
+    /* Reduced from 38px, still bigger than 32px */
+    color: var(--accent-yellow);
+}
+
+.header-titles h1 {
+    font-size: 17px;
+    /* Slightly reduced */
+    font-weight: 500;
+    line-height: 1.1;
+}
+
+.header-titles h2 {
+    font-size: 17px;
+    /* Slightly reduced */
+    font-weight: 500;
+    color: var(--accent-yellow);
+    line-height: 1.1;
+}
+
+.save-btn {
+    background: transparent;
+    border: none;
+    color: var(--accent-yellow);
+    font-size: 15px;
+    font-weight: 400;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+}
+
+.save-btn:hover {
+    color: var(--accent-yellow-hover);
+}
+
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 3px;
+    /* Tighter gap between cards like client design */
+    overflow: hidden;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px 8px 16px;
+    /* Reduced bottom padding */
+}
+
+.header-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.number-badge {
+    background-color: var(--accent-yellow);
+    color: #000;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.header-title-group h3 {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.header-icon {
+    color: var(--text-muted);
+    font-size: 16px;
+}
+
+.add-btn {
+    background: transparent;
+    border: none;
+    color: var(--accent-yellow);
+    font-size: 10px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+}
+
+.inline-add-btn {
+    padding: 12px 16px;
+    margin-bottom: 4px;
+}
+
+.table-headers {
+    display: grid;
+    padding: 0 16px 8px 16px;
+    font-size: 11px;
+    /* Smaller font size like client design */
+    color: var(--text-muted);
+}
+
+.labour-grid {
+    grid-template-columns: 24px 2fr 1.1fr 1.1fr 1fr 28px;
+    /* Adjusted to allow wrap and match client */
+    gap: 8px;
+    align-items: center;
+}
+
+.admin-grid {
+    grid-template-columns: 1fr 1fr;
+}
+
+.running-costs-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.materials-grid {
+    grid-template-columns: 1fr 1fr;
+}
+
+.extras-grid {
+    grid-template-columns: 2fr 1fr 32px;
+    gap: 8px;
+}
+
+.item-row {
+    display: grid;
+    padding: 0 16px 10px 16px;
+    /* Tighter padding below rows */
+    gap: 8px;
+    align-items: center;
+}
+
+.drag-icon {
+    color: var(--text-muted);
+    font-size: 20px;
+    cursor: grab;
+}
+
+select,
+input {
+    width: 100%;
+    background-color: var(--input-bg);
+    border: 1px solid #2a2a2a;
+    /* More subtle border */
+    color: var(--text-main);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    outline: none;
+    height: 40px;
+    /* Reduced height to match client */
+}
+
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px top 50%;
+    background-size: 16px;
+    padding-right: 28px;
+}
+
+select:focus,
+input:focus {
+    border-color: var(--accent-yellow);
+}
+
+.item-total {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    padding-left: 2px;
+}
+
+.delete-btn {
+    background: transparent;
+    border: none;
+    color: var(--danger-red);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-footer {
+    padding: 8px 0;
+    margin: 0 16px;
+    border-top: 1px solid #2a2a2a;
+    /* Fixed to 1px and aligned with text */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.footer-value {
+    font-size: 18px;
+    /* Larger total numbers like client design */
+    font-weight: 700;
+}
+
+.highlight {
+    color: var(--accent-yellow);
+}
+
+/* Input Grids */
+.input-grid {
+    display: grid;
+    padding: 0 16px 12px 16px;
+    /* Reduced bottom padding */
+    gap: 12px;
+    /* Tighter gap */
+}
+
+.input-group label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    /* Tighter margin below label */
+}
+
+.label-icon {
+    font-size: 14px;
+}
+
+.input-with-icon,
+.input-with-suffix {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-icon i {
+    position: absolute;
+    right: 12px;
+    color: var(--text-muted);
+    font-size: 16px;
+}
+
+.input-with-suffix .suffix {
+    position: absolute;
+    right: 12px;
+    color: var(--text-main);
+    font-size: 13px;
+}
+
+.input-with-icon input,
+.input-with-suffix input {
+    padding-right: 32px;
+}
+
+.info-text {
+    font-size: 11px;
+    color: var(--accent-yellow);
+    display: flex;
+    align-items: center;
+    line-height: 1.4;
+}
+
+.profit-container {
+    display: flex;
+    padding: 0 16px 16px 16px;
+    gap: 16px;
+    align-items: flex-end;
+}
+
+.vat-container {
+    display: flex;
+    padding: 0 16px 16px 16px;
+    gap: 16px;
+    align-items: center;
+}
+
+.profit-input-group {
+    flex: 1;
+}
+
+.profit-amount-box,
+.vat-amount-box {
+    flex: 1;
+    background-color: var(--input-bg);
+    border: none;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 66px;
+    /* Exactly matches the left side height */
+}
+
+.box-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+    /* Tighter gap between label and value */
+}
+
+.box-value {
+    font-size: 20px;
+    /* Larger, like client design */
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* Toggle Switch */
+.toggle-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.toggle-group-inline {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.toggle-group label:first-child,
+.toggle-group-inline label:first-child {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #555;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked+.slider {
+    background-color: var(--accent-yellow);
+}
+
+input:checked+.slider:before {
+    transform: translateX(20px);
+}
+
+.slider.round {
+    border-radius: 24px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Summary Section */
+.summary-section {
+    padding: 12px 16px;
+    /* Reduced vertical padding */
+    margin-bottom: 8px;
+    /* Small gap before final price */
+}
+
+.summary-section h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-main);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #aba5a5;
+    margin-bottom: 4px;
+}
+
+.summary-row span:last-child {
+    color: #aba5a5;
+}
+
+.subtotal-row {
+    margin-top: 8px;
+    padding-top: 8px;
+    font-size: 13px;
+    color: #aba5a5;
+    border-top: 1px solid var(--border-color);
+}
+
+.subtotal-row span:last-child {
+    font-weight: normal;
+    /* Client design doesn't seem to make values bold here */
+}
+
+.profit-row {
+    margin-bottom: 8px;
+}
+
+.profit-row span,
+.vat-row span {
+    color: #aba5a5;
+}
+
+.profit-row span:last-child,
+.vat-row span:last-child {
+    color:#aba5a5;
+}
+
+/* Final Price */
+.final-price-section {
+    background-color: transparent;
+    border: 1px solid var(--accent-yellow);
+    color: var(--accent-yellow);
+    border-radius: 4px;
+    padding: 2px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 800;
+    margin-top: 16px;
+    /* Space from the VAT row */
+}
+
+.final-price-section span:first-child {
+    font-size: 16px;
+}
+
+.final-price-section span:last-child {
+    font-size: 24px;
+}
+
+/* Animations */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}

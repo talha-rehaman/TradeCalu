@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - TradeCalc</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+        }
+        .container {
+            background-color: #1A1A1A;
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid #333;
+            max-width: 400px;
+        }
+        .success-icon {
+            font-size: 64px;
+            color: #FFC107;
+            margin-bottom: 20px;
+        }
+        h1 { margin-bottom: 10px; }
+        p { color: #A0A0A0; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✓</div>
+        <h1>Payment Successful!</h1>
+        <p>Your calculator has been unlocked. Redirecting you back...</p>
+    </div>
+
+    <script>
+        // Set payment status
+        localStorage.setItem('tradecalc_paid', 'true');
+        
+        // Redirect after 2 seconds
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 2000);
+    </script>
+</body>
+</html>
