@@ -7,9 +7,28 @@
     <title>TradeCalc - Electrician Job Pricer</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PWA & App Icons -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="images/app-icon.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="images/app-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="images/app-icon.png">
+    <meta name="theme-color" content="#FFC107">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TradeCalc">
+    
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('SW Registered'))
+                .catch(err => console.log('SW Error', err));
+        }
+    </script>
 </head>
 
 <body>
@@ -18,7 +37,7 @@
         <div class="overlay-content">
             <img src="images/book-line.png" alt="Logo" class="overlay-logo">
             <h2>Unlock the Electrician Job Pricer</h2>
-            <p>Get instant access to our professional pricing tool.</p>
+            <p>Get instant access for only £4.99.</p>
             <button id="pay-button" class="pay-btn">
                 <i class="ph-fill ph-credit-card"></i> Pay to Calculate
             </button>
@@ -53,9 +72,14 @@
                         <span class="number-badge">1</span>
                         <h3>LABOUR</h3>
                     </div>
-                    <button class="add-btn" id="add-labour-btn">
-                        <i class="ph ph-plus-circle"></i> Add Operative
-                    </button>
+                    <div class="labour-btns">
+                        <button class="add-btn" id="add-engineer-btn">
+                            <i class="ph ph-plus-circle"></i> Add Engineer
+                        </button>
+                        <button class="add-btn" id="add-mate-btn" style="display: none">
+                            <i class="ph ph-plus-circle"></i> Add Mate
+                        </button>
+                    </div>
                 </div>
 
                 <div class="table-headers labour-grid">
@@ -84,6 +108,7 @@
                         <span class="number-badge">2</span>
                         <h3>ADMIN</h3>
                     </div>
+                    <div class="table-headers">Add time for quoting, planning, ordering materials etc</div>
                 </div>
 
                 <div class="input-grid admin-grid">
@@ -124,8 +149,11 @@
                             <i class="ph-fill ph-lock-key"></i>
                         </div>
                     </div>
-                    <div class="info-text">
-                        Based on<br>total site days<br>(labour only)
+                    <div class="input-group info-text-group">
+                        <label>&nbsp;</label>
+                        <div class="table-headers" style="padding: 0; margin-top:16px">
+                            Engineer days + Admin days
+                        </div>
                     </div>
                 </div>
 
@@ -294,6 +322,12 @@
 
         </main>
     </div>
+    <!-- Floating Install Button -->
+    <button id="pwa-install-btn" class="pwa-install-btn" style="display: none;">
+        <i class="ph-fill ph-download-simple"></i>
+        <span>Install App</span>
+    </button>
+
     <script src="js/script.js"></script>
 </body>
 

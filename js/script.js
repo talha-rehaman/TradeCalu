@@ -15,21 +15,73 @@ document.addEventListener('DOMContentLoaded', () => {
         mainApp.classList.remove('blurred');
     }
 
+    // --- PWA Installation Logic ---
+    let deferredPrompt;
+    const installBtn = document.getElementById('pwa-install-btn');
+
+    if (installBtn) {
+        // Check if already installed
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+        if (!isStandalone) {
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installBtn.style.display = 'flex';
+            });
+
+            // For iOS
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS && !window.navigator.standalone) {
+                installBtn.style.display = 'flex';
+            }
+        }
+
+        installBtn.addEventListener('click', () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        installBtn.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                // iOS or other
+                Swal.fire({
+                    title: 'Install TradeCalc',
+                    html: `
+                        <div style="text-align: left; font-size: 14px; line-height: 1.6;">
+                            1. Tap the <strong>Share</strong> icon <i class="ph ph-export" style="font-size: 18px; vertical-align: middle;"></i> at the bottom.<br>
+                            2. Scroll down and tap <strong>'Add to Home Screen'</strong> <i class="ph ph-plus-square" style="font-size: 18px; vertical-align: middle;"></i>.<br>
+                            3. Tap <strong>'Add'</strong> in the top right corner.
+                        </div>
+                    `,
+                    confirmButtonText: 'Got it',
+                    confirmButtonColor: '#FFC107',
+                    background: '#1A1A1A',
+                    color: '#FFFFFF'
+                });
+            }
+        });
+    }
+
+
     payButton.addEventListener('click', async () => {
         console.log('Pay button clicked. Initializing Stripe...');
         const stripe = Stripe('pk_test_51OFBcaGdc1xOCo47iryj1mZHNcDOksxSYMbUMcy0CXVjg8G2AxcZlvqoeV1rahuIhu9kvrEk3hgVWt9bQW4EwvuS00vYAn2D0b');
-        
+
         payButton.innerHTML = '<i class="ph-bold ph-circle-notch animate-spin"></i> Connecting...';
         payButton.disabled = true;
 
         try {
             console.log('Fetching checkout session from checkout.php...');
-            const response = await fetch('checkout.php', { 
+            const response = await fetch('checkout.php', {
                 method: 'POST'
             });
 
             console.log('Response received. Status:', response.status);
-            
+
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 console.error('Server Error Data:', errorData);
@@ -119,21 +171,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initial Data State ---
     let labourItems = [
-        { id: 1, role: 'Electrician', days: 5, rate: 250 },
-        { id: 2, role: 'Mate', days: 5, rate: 150 },
-        { id: 3, role: 'Apprentice', days: 5, rate: 100 }
+        { id: 1, role: 'Engineer', days: '', rate: '' }
     ];
-    let nextLabourId = 4;
+    let nextLabourId = 2;
 
     let extraItems = [
-        { id: 1, desc: 'Parking', cost: 40 },
-        { id: 2, desc: 'Tolls', cost: 30 }
+        { id: 1, desc: 'Parking', cost: '' }
     ];
-    let nextExtraId = 3;
+    let nextExtraId = 2;
 
     // --- DOM Elements ---
     const labourList = document.getElementById('labour-list');
-    const addLabourBtn = document.getElementById('add-labour-btn');
     const extrasList = document.getElementById('extras-list');
     const addExtraBtn = document.getElementById('add-extra-btn');
 
@@ -147,6 +195,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const profitPercentInput = document.getElementById('profit-percent');
     const vatRegisteredToggle = document.getElementById('vat-registered');
 
+    // Set initial values to 0/empty
+    adminDaysInput.value = '';
+    adminRateInput.value = '';
+    dailyRunningCostInput.value = '';
+    materialsCostInput.value = '';
+    materialsMarkupInput.value = '';
+    profitPercentInput.value = '';
+    vatRegisteredToggle.checked = false;
+
     // Totals
     const labourTotalEl = document.getElementById('labour-total');
     const adminTotalEl = document.getElementById('admin-total');
@@ -155,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const extrasTotalEl = document.getElementById('extras-total');
     const profitAmountEl = document.getElementById('profit-amount');
     const vatAmountEl = document.getElementById('vat-amount');
-    
+
     const resetBtn = document.getElementById('reset-btn');
 
     // Summary Elements
@@ -195,17 +252,17 @@ document.addEventListener('DOMContentLoaded', () => {
         labourItems.forEach((item, index) => {
             const row = document.createElement('div');
             row.className = 'item-row labour-grid';
-            
+
             row.innerHTML = `
                 <i class="ph ph-dots-six-vertical drag-icon"></i>
                 <select class="labour-role" data-id="${item.id}">
-                    <option value="Electrician" ${item.role === 'Electrician' ? 'selected' : ''}>Electrician</option>
+                    <option value="Engineer" ${item.role === 'Engineer' ? 'selected' : ''}>Engineer</option>
                     <option value="Mate" ${item.role === 'Mate' ? 'selected' : ''}>Mate</option>
                     <option value="Apprentice" ${item.role === 'Apprentice' ? 'selected' : ''}>Apprentice</option>
                 </select>
-                <input type="number" class="labour-days" data-id="${item.id}" value="${item.days}" min="0" step="0.5">
-                <input type="number" class="labour-rate" data-id="${item.id}" value="${item.rate}" min="0">
-                <div class="item-total" data-id="${item.id}">${formatNumber(item.days * item.rate)}</div>
+                <input type="number" class="labour-days" data-id="${item.id}" value="${item.days}" min="0" step="0.5" placeholder="0">
+                <input type="number" class="labour-rate" data-id="${item.id}" value="${item.rate}" min="0" placeholder="0">
+                <div class="item-total" data-id="${item.id}">${formatNumber((item.days || 0) * (item.rate || 0))}</div>
                 <button class="delete-btn delete-labour" data-id="${item.id}"><i class="ph ph-trash"></i></button>
             `;
             labourList.appendChild(row);
@@ -219,10 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
         extraItems.forEach(item => {
             const row = document.createElement('div');
             row.className = 'item-row extras-grid';
-            
+
             row.innerHTML = `
                 <input type="text" class="extra-desc" data-id="${item.id}" value="${item.desc}" placeholder="Description">
-                <input type="number" class="extra-cost" data-id="${item.id}" value="${item.cost}" min="0">
+                <input type="number" class="extra-cost" data-id="${item.id}" value="${item.cost}" min="0" placeholder="0">
                 <button class="delete-btn delete-extra" data-id="${item.id}"><i class="ph ph-trash"></i></button>
             `;
             extrasList.appendChild(row);
@@ -245,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const id = parseInt(e.target.dataset.id);
                 const item = labourItems.find(i => i.id === id);
                 item.days = parseFloat(e.target.value) || 0;
-                
+
                 // Update specific row total instead of re-rendering
                 const totalEl = e.target.closest('.item-row').querySelector('.item-total');
                 totalEl.textContent = formatNumber(item.days * item.rate);
@@ -257,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const id = parseInt(e.target.dataset.id);
                 const item = labourItems.find(i => i.id === id);
                 item.rate = parseFloat(e.target.value) || 0;
-                
+
                 // Update specific row total instead of re-rendering
                 const totalEl = e.target.closest('.item-row').querySelector('.item-total');
                 totalEl.textContent = formatNumber(item.days * item.rate);
@@ -301,17 +358,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Main Calculation Logic ---
     const calculateAll = () => {
         // 1. Labour
-        let maxLabourDays = 0;
+        let engineerDays = 0;
         let labourTotal = 0;
         labourItems.forEach(item => {
-            labourTotal += (item.days * item.rate);
-            if (item.days > maxLabourDays) maxLabourDays = item.days;
+            const days = parseFloat(item.days) || 0;
+            const rate = parseFloat(item.rate) || 0;
+            labourTotal += (days * rate);
+            if (item.role === 'Engineer') {
+                engineerDays += days;
+            }
         });
         labourTotalEl.textContent = formatCurrency(labourTotal);
         sumLabourEl.textContent = formatCurrency(labourTotal);
-
-        // Update Running Days (auto) based on max labour days
-        runningDaysInput.value = maxLabourDays;
 
         // 2. Admin
         const adminDays = parseFloat(adminDaysInput.value) || 0;
@@ -320,9 +378,13 @@ document.addEventListener('DOMContentLoaded', () => {
         adminTotalEl.textContent = formatCurrency(adminTotal);
         sumAdminEl.textContent = formatCurrency(adminTotal);
 
+        // Update Running Days (auto) based on Engineer days + Admin days
+        const totalRunningDays = engineerDays + adminDays;
+        runningDaysInput.value = totalRunningDays;
+
         // 3. Running Costs
         const dailyRunningCost = parseFloat(dailyRunningCostInput.value) || 0;
-        const runningTotal = dailyRunningCost * maxLabourDays;
+        const runningTotal = dailyRunningCost * totalRunningDays;
         runningTotalEl.textContent = formatCurrency(runningTotal);
         sumRunningEl.textContent = formatCurrency(runningTotal);
 
@@ -348,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 6. Profit
         const profitPercent = parseFloat(profitPercentInput.value) || 0;
         const profitAmount = subtotalBeforeProfit * (profitPercent / 100);
-        
+
         profitAmountEl.textContent = formatCurrency(profitAmount);
         sumProfitLabelEl.textContent = `Profit (${profitPercent}%)`;
         sumProfitEl.textContent = formatCurrency(profitAmount);
@@ -360,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 7. VAT
         const isVatRegistered = vatRegisteredToggle.checked;
         let vatAmount = 0;
-        
+
         if (isVatRegistered) {
             vatAmount = subtotalBeforeVAT * 0.20;
             sumVatRowEl.style.display = 'flex';
@@ -378,13 +440,21 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Global Event Listeners ---
-    addLabourBtn.addEventListener('click', () => {
-        labourItems.push({ id: nextLabourId++, role: 'Electrician', days: 1, rate: 250 });
+    const addEngineerBtn = document.getElementById('add-engineer-btn');
+    const addMateBtn = document.getElementById('add-mate-btn');
+
+    addEngineerBtn.addEventListener('click', () => {
+        labourItems.push({ id: nextLabourId++, role: 'Engineer', days: '', rate: '' });
+        renderLabour();
+    });
+
+    addMateBtn.addEventListener('click', () => {
+        labourItems.push({ id: nextLabourId++, role: 'Mate', days: '', rate: '' });
         renderLabour();
     });
 
     addExtraBtn.addEventListener('click', () => {
-        extraItems.push({ id: nextExtraId++, desc: 'New Extra', cost: 0 });
+        extraItems.push({ id: nextExtraId++, desc: 'New Extra', cost: '' });
         renderExtras();
     });
 
@@ -402,25 +472,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }).then((result) => {
             if (result.isConfirmed) {
                 labourItems = [
-                    { id: 1, role: 'Electrician', days: 5, rate: 250 },
-                    { id: 2, role: 'Mate', days: 5, rate: 150 },
-                    { id: 3, role: 'Apprentice', days: 5, rate: 100 }
+                    { id: 1, role: 'Engineer', days: '', rate: '' }
                 ];
-                nextLabourId = 4;
+                nextLabourId = 2;
                 extraItems = [
-                    { id: 1, desc: 'Parking', cost: 40 },
-                    { id: 2, desc: 'Tolls', cost: 30 }
+                    { id: 1, desc: 'Parking', cost: '' }
                 ];
-                nextExtraId = 3;
-                
-                adminDaysInput.value = 1;
-                adminRateInput.value = 250;
-                dailyRunningCostInput.value = 80;
-                materialsCostInput.value = 1200;
-                materialsMarkupInput.value = 0;
-                profitPercentInput.value = 20;
-                vatRegisteredToggle.checked = true;
-                
+                nextExtraId = 2;
+
+                adminDaysInput.value = '';
+                adminRateInput.value = '';
+                dailyRunningCostInput.value = '';
+                materialsCostInput.value = '';
+                materialsMarkupInput.value = '';
+                profitPercentInput.value = '';
+                vatRegisteredToggle.checked = false;
+
                 renderLabour();
                 renderExtras();
 
