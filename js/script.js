@@ -122,26 +122,71 @@ document.addEventListener('DOMContentLoaded', () => {
     restoreLink.addEventListener('click', (e) => {
         e.preventDefault();
         Swal.fire({
-            title: 'Check Purchase',
-            text: 'Enter the email you used for payment:',
-            input: 'email',
-            inputPlaceholder: 'email@example.com',
+            title: 'Restore Access',
+            html: `
+                <style>
+                    .swal2-validation-message {
+                        background: #1a1a1a !important;
+                        color: #ffc107 !important;
+                        border: 1px solid #333 !important;
+                        border-radius: 8px !important;
+                        margin: 15px 5px 0 5px !important;
+                        padding: 12px !important;
+                        font-size: 13px !important;
+                        justify-content: center !important;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                    }
+                    .swal2-validation-message::before {
+                        color: #ffc107 !important;
+                        background-color: transparent !important;
+                    }
+                </style>
+                <div style="text-align: left; padding: 10px 5px;">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; font-size: 13px; color: #A0A0A0; font-weight: 500;">Payment Email</label>
+                        <input id="swal-email" type="email" placeholder="email@example.com" 
+                            style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; border-radius: 8px; color: white; font-size: 15px; box-sizing: border-box; outline: none;">
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-size: 13px; color: #A0A0A0; font-weight: 500;">Last 4 Digits of Card</label>
+                        <input id="swal-last4" type="text" placeholder="e.g. 4242" maxlength="4"
+                            style="width: 100%; padding: 12px; background: #111; border: 1px solid #333; border-radius: 8px; color: white; font-size: 15px; box-sizing: border-box; outline: none;">
+                    </div>
+                </div>
+            `,
             showCancelButton: true,
-            confirmButtonText: 'Check',
+            confirmButtonText: 'Verify Access',
             confirmButtonColor: '#FFC107',
             background: '#1A1A1A',
             color: '#FFFFFF',
-            preConfirm: async (email) => {
+            focusConfirm: false,
+            preConfirm: async () => {
+                const email = document.getElementById('swal-email').value;
+                const last4 = document.getElementById('swal-last4').value;
+
+                if (!email) {
+                    Swal.showValidationMessage('Email is required');
+                    return false;
+                }
+                if (!last4 || last4.length !== 4 || isNaN(last4)) {
+                    Swal.showValidationMessage('Please enter the 4 digits of your card');
+                    return false;
+                }
+
                 try {
                     const formData = new FormData();
                     formData.append('email', email);
+                    formData.append('last4', last4);
+                    
                     const response = await fetch('restore.php', {
                         method: 'POST',
                         body: formData
                     });
                     const data = await response.json();
+                    
                     if (!data.success) {
-                        throw new Error(data.error || 'Email not found');
+                        throw new Error(data.error || 'Verification failed. Please check your details.');
                     }
                     return { success: true, email: email };
                 } catch (error) {
@@ -149,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }).then((result) => {
-            if (result.isConfirmed) {
+            if (result.isConfirmed && result.value) {
                 localStorage.setItem('tradecalc_paid', 'true');
                 localStorage.setItem('tradecalc_email', result.value.email);
                 Swal.fire({
@@ -256,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
             row.innerHTML = `
                 <i class="ph ph-dots-six-vertical drag-icon"></i>
                 <select class="labour-role" data-id="${item.id}">
-                    <option value="Engineer" ${item.role === 'Engineer' ? 'selected' : ''}>Engineer</option>
+                    <option value="Electrician" ${item.role === 'Electrician' ? 'selected' : ''}>Electrician</option>
                     <option value="Mate" ${item.role === 'Mate' ? 'selected' : ''}>Mate</option>
                     <option value="Apprentice" ${item.role === 'Apprentice' ? 'selected' : ''}>Apprentice</option>
                 </select>
@@ -358,15 +403,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Main Calculation Logic ---
     const calculateAll = () => {
         // 1. Labour
-        let engineerDays = 0;
+        let firstPersonDays = (labourItems.length > 0) ? (parseFloat(labourItems[0].days) || 0) : 0;
         let labourTotal = 0;
         labourItems.forEach(item => {
             const days = parseFloat(item.days) || 0;
             const rate = parseFloat(item.rate) || 0;
             labourTotal += (days * rate);
-            if (item.role === 'Engineer') {
-                engineerDays += days;
-            }
         });
         labourTotalEl.textContent = formatCurrency(labourTotal);
         sumLabourEl.textContent = formatCurrency(labourTotal);
@@ -378,8 +420,8 @@ document.addEventListener('DOMContentLoaded', () => {
         adminTotalEl.textContent = formatCurrency(adminTotal);
         sumAdminEl.textContent = formatCurrency(adminTotal);
 
-        // Update Running Days (auto) based on Engineer days + Admin days
-        const totalRunningDays = engineerDays + adminDays;
+        // Update Running Days (auto) based on First Person days + Admin days
+        const totalRunningDays = firstPersonDays + adminDays;
         runningDaysInput.value = totalRunningDays;
 
         // 3. Running Costs
@@ -398,33 +440,39 @@ document.addEventListener('DOMContentLoaded', () => {
         // 5. Extras
         let extrasTotal = 0;
         extraItems.forEach(item => {
-            extrasTotal += item.cost;
+            extrasTotal += parseFloat(item.cost) || 0;
         });
         extrasTotalEl.textContent = formatCurrency(extrasTotal);
         sumExtrasEl.textContent = formatCurrency(extrasTotal);
 
         // Subtotals
-        const subtotalBeforeProfit = labourTotal + adminTotal + runningTotal + materialsTotal + extrasTotal;
+        const subtotalBeforeProfit = Number(labourTotal) + Number(adminTotal) + Number(runningTotal) + Number(materialsTotal) + Number(extrasTotal);
         sumSubtotalBPEl.textContent = formatCurrency(subtotalBeforeProfit);
 
         // 6. Profit
         const profitPercent = parseFloat(profitPercentInput.value) || 0;
-        const profitAmount = subtotalBeforeProfit * (profitPercent / 100);
+        let profitAmount = 0;
+        let totalBeforeVAT = subtotalBeforeProfit;
+
+        if (profitPercent > 0 && profitPercent < 100) {
+            const sellingPrice = Number(subtotalBeforeProfit) / (1 - (profitPercent / 100));
+            profitAmount = sellingPrice - Number(subtotalBeforeProfit);
+            totalBeforeVAT = sellingPrice;
+        }
 
         profitAmountEl.textContent = formatCurrency(profitAmount);
         sumProfitLabelEl.textContent = `Profit (${profitPercent}%)`;
         sumProfitEl.textContent = formatCurrency(profitAmount);
 
         // Subtotal Before VAT
-        const subtotalBeforeVAT = subtotalBeforeProfit + profitAmount;
-        sumSubtotalBVEl.textContent = formatCurrency(subtotalBeforeVAT);
+        sumSubtotalBVEl.textContent = formatCurrency(totalBeforeVAT);
 
         // 7. VAT
         const isVatRegistered = vatRegisteredToggle.checked;
         let vatAmount = 0;
 
         if (isVatRegistered) {
-            vatAmount = subtotalBeforeVAT * 0.20;
+            vatAmount = totalBeforeVAT * 0.20;
             sumVatRowEl.style.display = 'flex';
         } else {
             vatAmount = 0;
@@ -435,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sumVatEl.textContent = formatCurrency(vatAmount);
 
         // Final Price
-        const finalPrice = subtotalBeforeVAT + vatAmount;
+        const finalPrice = Number(totalBeforeVAT) + Number(vatAmount);
         finalPriceEl.textContent = formatCurrency(finalPrice);
     };
 

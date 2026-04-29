@@ -7,7 +7,7 @@
     <title>TradeCalc - Electrician Job Pricer</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+
     <!-- PWA & App Icons -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="images/app-icon.png">
@@ -18,7 +18,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="TradeCalc">
-    
+
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://js.stripe.com/v3/"></script>
@@ -35,7 +35,7 @@
     <!-- Payment Overlay -->
     <div id="payment-overlay" class="payment-overlay">
         <div class="overlay-content">
-            <img src="images/book-line.png" alt="Logo" class="overlay-logo">
+            <img src="images/logo.png" alt="Logo" class="overlay-logo">
             <h2>Unlock the Electrician Job Pricer</h2>
             <p>Get instant access for only £4.99.</p>
             <button id="pay-button" class="pay-btn">
@@ -53,7 +53,7 @@
     <div class="app-container" id="main-app">
         <header class="app-header">
             <div class="header-left">
-                <img src="images/book-line.png" alt="" style="width: 47px;
+                <img src="images/logo.png" alt="" style="width: 47px;
                    height: auto;">
                 <!-- <i class="ph ph-bold ph-book-open-text title-icon"></i> -->
                 <div class="header-titles">
@@ -74,7 +74,7 @@
                     </div>
                     <div class="labour-btns">
                         <button class="add-btn" id="add-engineer-btn">
-                            <i class="ph ph-plus-circle"></i> Add Engineer
+                            <i class="ph ph-plus-circle"></i>Engineer
                         </button>
                         <button class="add-btn" id="add-mate-btn" style="display: none">
                             <i class="ph ph-plus-circle"></i> Add Mate
@@ -108,7 +108,9 @@
                         <span class="number-badge">2</span>
                         <h3>ADMIN</h3>
                     </div>
-                    <div class="table-headers">Add time for quoting, planning, ordering materials etc</div>
+                </div>
+                <div class="card-instruction">
+                    Add time for quoting, planning, ordering materials etc
                 </div>
 
                 <div class="input-grid admin-grid">
@@ -133,8 +135,11 @@
                 <div class="card-header">
                     <div class="header-title-group">
                         <span class="number-badge">3</span>
-                        <h3>RUNNING COSTS <i class="ph ph-info header-icon"></i></h3>
+                        <h3>RUNNING COSTS </h3>
                     </div>
+                </div>
+                <div class="card-instruction">
+                    Engineer days + Admin days
                 </div>
 
                 <div class="input-grid running-costs-grid">
@@ -147,12 +152,6 @@
                         <div class="input-with-icon">
                             <input type="number" id="running-days" value="5" min="0" readonly>
                             <i class="ph-fill ph-lock-key"></i>
-                        </div>
-                    </div>
-                    <div class="input-group info-text-group">
-                        <label>&nbsp;</label>
-                        <div class="table-headers" style="padding: 0; margin-top:16px">
-                            Engineer days + Admin days
                         </div>
                     </div>
                 </div>
@@ -171,6 +170,9 @@
                         <h3>MATERIALS</h3>
                     </div>
                 </div>
+                <div class="card-instruction">
+                    Total cost of materials including any delivery charges
+                </div>
 
                 <div class="input-grid materials-grid">
                     <div class="input-group">
@@ -178,7 +180,7 @@
                         <input type="number" id="materials-cost" value="1200" min="0">
                     </div>
                     <div class="input-group">
-                        <label>Markup (%) <i class="ph ph-info label-icon"></i></label>
+                        <label>Markup (%) </label>
                         <input type="number" id="materials-markup" value="0" min="0">
                     </div>
                 </div>
@@ -194,8 +196,11 @@
                 <div class="card-header">
                     <div class="header-title-group">
                         <span class="number-badge">5</span>
-                        <h3>EXTRAS <i class="ph ph-info header-icon"></i></h3>
+                        <h3>EXTRAS </h3>
                     </div>
+                </div>
+                <div class="card-instruction">
+                    Add extra items like parking, travel, or specialized tools
                 </div>
 
                 <div class="table-headers extras-grid">
@@ -229,7 +234,7 @@
 
                 <div class="profit-container">
                     <div class="input-group profit-input-group">
-                        <label>Profit % (on top of costs) <i class="ph ph-info label-icon"></i></label>
+                        <label>Profit Margin % </label>
                         <div class="input-with-suffix">
                             <input type="number" id="profit-percent" value="20" min="0">
                             <span class="suffix">%</span>
@@ -300,23 +305,23 @@
 
                 <div class="summary-row profit-row">
                     <span id="sum-profit-label">Profit (20%)</span>
-                    <span id="sum-profit">£884</span>
+                    <span id="sum-profit">£1,105</span>
                 </div>
 
                 <div class="summary-row subtotal-row">
                     <span>Subtotal (Before VAT)</span>
-                    <span id="sum-subtotal-bv">£5,304</span>
+                    <span id="sum-subtotal-bv">£5,525</span>
                 </div>
 
                 <div class="summary-row vat-row" id="sum-vat-row">
                     <span>VAT (20%)</span>
-                    <span id="sum-vat">£1,060</span>
+                    <span id="sum-vat">£1,105</span>
                 </div>
 
                 <!-- FINAL PRICE -->
                 <section class="final-price-section">
                     <span>FINAL PRICE</span>
-                    <span id="final-price">£6,364</span>
+                    <span id="final-price">£6,630</span>
                 </section>
             </section>
 

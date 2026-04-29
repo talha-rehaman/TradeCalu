@@ -1,1 +1,27 @@
-["itsme.talha65@gmail.com","rehmanatif682@gmail.com","tanveer001@gmail.com"]
+[
+    {
+        "email": "itsme.talha65@gmail.com",
+        "name": "Legacy User",
+        "ip": "::1",
+        "last4": "Unknown"
+    },
+    {
+        "email": "rehmanatif682@gmail.com",
+        "name": "Legacy User",
+        "ip": "Unknown",
+        "last4": "Unknown"
+    },
+    {
+        "email": "tanveer001@gmail.com",
+        "name": "Legacy User",
+        "ip": "Unknown",
+        "last4": "Unknown"
+    },
+    {
+        "email": "talha123@gmail.com",
+        "name": "Admin Tanveer",
+        "ip": "::1",
+        "last4": "4242",
+        "date": "2026-04-28 10:53:37"
+    }
+]
