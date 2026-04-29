@@ -2,3 +2,4 @@ checkout.php
 restore.php
 success.php
 Backup/
+*.zip

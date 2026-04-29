@@ -1,6 +1,6 @@
 {
-  "name": "TradeCalc - Electrician Job Pricer",
-  "short_name": "TradeCalc",
+  "name": "Electrician pricing",
+  "short_name": "Electrician pricing",
   "description": "Premium job pricing calculator for electricians.",
   "start_url": "index.html",
   "display": "standalone",
@@ -8,13 +8,13 @@
   "theme_color": "#FFC107",
   "icons": [
     {
-      "src": "images/images/logo.png",
+      "src": "images/logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "images/images/logo.png",
+      "src": "images/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

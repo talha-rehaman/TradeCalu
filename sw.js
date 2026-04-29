@@ -1,11 +1,11 @@
-const CACHE_NAME = 'tradecalc-v4';
+const CACHE_NAME = 'tradecalc-v5';
 const ASSETS = [
   './',
   './index.html',
   './css/style.css',
   './js/script.js',
   './manifest.json',
-  './images/app-icon.png',
+
   './images/logo.png'
 ];
 

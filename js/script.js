@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // iOS or other
                 Swal.fire({
-                    title: 'Install TradeCalc',
+                    title: 'Install Electrician pricing',
                     html: `
                         <div style="text-align: left; font-size: 14px; line-height: 1.6;">
                             1. Tap the <strong>Share</strong> icon <i class="ph ph-export" style="font-size: 18px; vertical-align: middle;"></i> at the bottom.<br>
